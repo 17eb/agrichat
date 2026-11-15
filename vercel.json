@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/:path*",
+      "destination": "http://agrichat-agrichat-mnsb53-3c00dd-187-77-115-236.sslip.io/:path*"
+    }
+  ]
+}
