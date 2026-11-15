@@ -104,13 +104,13 @@ def test_static_assets_served(client: TestClient) -> None:
 
 
 def test_pages_have_no_long_dash() -> None:
-    for path in [*STATIC.glob("*"), *(STATIC.parent / "templates").glob("*.html")]:
+    for path in [*STATIC.glob("*"), *(STATIC.parent / "templates").rglob("*.html")]:
         assert chr(0x2014) not in path.read_text()
 
 
 def test_ui_pages_list() -> None:
     lines = (DATA.parent / "tools/ui_pages.txt").read_text().split()
-    assert lines == ["/", "/data"]
+    assert lines == ["/", "/data", "/admin/login"]
 
 
 def test_simulate_runs_the_sms_handler(client: TestClient) -> None:

@@ -1,10 +1,10 @@
 """Application entry point."""
 
 import logging
-from collections.abc import AsyncIterator
+from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.staticfiles import StaticFiles
 
 from app.config import Settings
@@ -14,6 +14,10 @@ from app.llm import create_model
 from app.sms import HttpSmsGateway, SmsGateway
 from app.webhook import router
 from kb.retrieve import Retriever, SentenceEmbedder
+from web.admin import add_admin_headers
+from web.admin import guarded as admin_guarded_router
+from web.admin import router as admin_router
+from web.auth import LOGIN_LIMIT, LOGIN_WINDOW_SECONDS
 from web.public import SIMULATE_LIMIT, SIMULATE_WINDOW_SECONDS, STATIC, SimulatorGateway
 from web.public import router as public_router
 from web.ratelimit import RateLimiter
@@ -56,9 +60,20 @@ def create_app(
     application = FastAPI(title="AgriChat", lifespan=lifespan)
     application.state.settings = config
     application.state.simulate_limiter = RateLimiter(SIMULATE_LIMIT, SIMULATE_WINDOW_SECONDS)
+    application.state.login_limiter = RateLimiter(LOGIN_LIMIT, LOGIN_WINDOW_SECONDS)
     application.include_router(router)
     application.include_router(public_router)
+    application.include_router(admin_router)
+    application.include_router(admin_guarded_router)
     application.mount("/static", StaticFiles(directory=STATIC), name="static")
+
+    @application.middleware("http")
+    async def admin_headers(
+        request: Request, call_next: Callable[[Request], Awaitable[Response]]
+    ) -> Response:
+        response = await call_next(request)
+        add_admin_headers(response, request.url.path)
+        return response
 
     @application.get("/health")
     def health() -> dict[str, bool]:

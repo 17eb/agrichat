@@ -58,6 +58,7 @@ GSM_BASIC = set(
     "0123456789:;<=>?¡ABCDEFGHIJKLMNOPQRSTUVWXYZÄÖÑÜ§¿abcdefghijklmnopqrstuvwxyzäöñüà"
 )
 GSM_EXTENDED = set("\f^{}\\[~]|€")
+SMS_LIMIT = 150
 
 
 @dataclass(frozen=True)
@@ -78,11 +79,15 @@ def clean_sms(text: str) -> str:
     )
 
 
+def sms_length(text: str) -> int:
+    """Length in GSM-7 septets; extended characters count twice."""
+    return sum(2 if char in GSM_EXTENDED else 1 for char in text)
+
+
 def validate_sms(text: str) -> bool:
-    weighted_length = sum(2 if char in GSM_EXTENDED else 1 for char in text)
     return (
         bool(text)
-        and weighted_length <= 150
+        and sms_length(text) <= SMS_LIMIT
         and all(char in GSM_BASIC or char in GSM_EXTENDED for char in text)
     )
 

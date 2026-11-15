@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import icon, state, csrf %}
+{% block title %}Farmers{% endblock %}
+{% block content %}
+<h1>Farmers</h1>
+{% if deleted %}<div class="state state-ok" role="status">{{ icon("ok") }}<div><p class="state-title">Profile deleted.</p><p class="state-text">Its messages were deleted too.</p></div></div>{% endif %}
+{% if farmers %}
+<div class="table-wrap">
+<table class="data-table stack-table">
+  <caption class="visually-hidden">Registered farmer profiles. No phone numbers are stored.</caption>
+  <thead><tr><th scope="col">Farmer</th><th scope="col">Barangay</th><th scope="col">Water source</th><th scope="col">Last crop</th><th scope="col">Priority</th><th scope="col">Registered</th><th scope="col"><span class="visually-hidden">Actions</span></th></tr></thead>
+  <tbody>
+  {% for f in farmers %}
+  <tr>
+    <td data-label="Farmer"><code>{{ f.phone_hash | short_hash }}</code></td>
+    <td data-label="Barangay">{{ f.barangay or f.barangay_code }}</td>
+    <td data-label="Water source">{{ f.water_source }}</td>
+    <td data-label="Last crop">{{ f.last_crop or "-" }}</td>
+    <td data-label="Priority">{{ f.priority or "-" }}</td>
+    <td data-label="Registered"><time datetime="{{ f.created_at }}">{{ f.created_at[:10] }}</time></td>
+    <td class="actions">
+      <form method="post" action="/admin/farmers/{{ f.phone_hash }}/delete" data-confirm-name="{{ f.phone_hash | short_hash }}">
+        {{ csrf(csrf_token) }}
+        <button class="button button-danger" type="submit">{{ icon("trash") }}<span>Delete<span class="visually-hidden"> profile {{ f.phone_hash | short_hash }}</span></span></button>
+      </form>
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<dialog id="confirm-dialog" aria-labelledby="confirm-title">
+  <form method="dialog">
+    <h2 id="confirm-title">Delete this profile?</h2>
+    <p>Profile <code id="confirm-name"></code> and its messages will be deleted. This cannot be undone.</p>
+    <div class="dialog-actions">
+      <button class="button button-quiet" value="cancel" type="submit">Cancel</button>
+      <button class="button button-danger" value="confirm" type="submit">{{ icon("trash") }}<span>Delete profile</span></button>
+    </div>
+  </form>
+</dialog>
+{% else %}
+{{ state("empty", "No profiles yet.", "A profile appears after a farmer registers with REG. Phone numbers are never stored, only a keyed hash.") }}
+{% endif %}
+{% endblock %}

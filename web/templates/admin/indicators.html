@@ -1,0 +1,45 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import icon, state %}
+{% block title %}Indicators{% endblock %}
+{% block content %}
+<h1>Indicators</h1>
+<section class="card locked" aria-labelledby="locked-title">
+  <h2 id="locked-title">{{ icon("lock") }}<span>Fixed before the hindcast; changed only in the repo</span></h2>
+  <div class="locked-grid">
+    <dl class="kv">
+      {% for label, value in thresholds %}<div><dt>{{ label }}</dt><dd>{{ value }}</dd></div>{% endfor %}
+    </dl>
+    <dl class="kv">
+      {% for label, value in weights %}<div><dt>Weight: {{ label | replace("_", " ") }}</dt><dd>{{ value }}</dd></div>{% endfor %}
+    </dl>
+  </div>
+  <p><strong>ENSO rule.</strong> {{ enso_rule }}</p>
+  <p class="muted">Some values are provisional until the reviewer confirms them.</p>
+</section>
+{% for group in groups %}
+<section aria-labelledby="g-{{ loop.index }}">
+  <h2 id="g-{{ loop.index }}">{{ group.crop | capitalize }}, sowing {{ group.window }}</h2>
+  <div class="table-wrap">
+  <table class="data-table stack-table fixed-table">
+    <colgroup><col style="width: 14%"><col style="width: 20%"><col style="width: 20%"><col style="width: 12%"><col style="width: 10%"><col style="width: 12%"><col style="width: 12%"></colgroup>
+    <thead><tr><th scope="col">Barangay</th><th scope="col">Adequate seasons</th><th scope="col">El Nino seasons</th><th scope="col">Median ratio</th><th scope="col">Heat</th><th scope="col">Harvest rain</th><th scope="col">Soil wetness</th></tr></thead>
+    <tbody>
+    {% for r in group.rows %}
+    <tr>
+      <td data-label="Barangay">{{ r.barangay or r.barangay_code }}</td>
+      <td data-label="Adequate seasons"><span class="bar" role="img" aria-label="{{ r.n_adequate }} of {{ r.n_years }} seasons adequate"><span class="bar-fill" style="width: {{ r.percent }}%"></span></span> <span class="bar-text">{{ r.n_adequate }}/{{ r.n_years }}</span></td>
+      <td data-label="El Nino seasons">{% if r.n_elnino %}<span class="bar bar-alt" role="img" aria-label="{{ r.n_adequate_elnino }} of {{ r.n_elnino }} El Nino seasons adequate"><span class="bar-fill" style="width: {{ r.percent_elnino }}%"></span></span> <span class="bar-text">{{ r.n_adequate_elnino }}/{{ r.n_elnino }}</span>{% else %}-{% endif %}</td>
+      <td data-label="Median ratio">{{ "%.2f" | format(r.median_ratio) }}</td>
+      <td data-label="Heat">{{ "%.0f" | format(r.heat_freq * 100) }}%</td>
+      <td data-label="Harvest rain">{{ "%.0f" | format(r.harvest_rain_freq * 100) }}%</td>
+      <td data-label="Soil wetness">{% if r.soilwet_pct is not none %}{{ "%.0f" | format(r.soilwet_pct) }} <span class="badge source-{{ r.soilwet_source }}">{{ r.soilwet_source }}</span>{% else %}-{% endif %}</td>
+    </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  </div>
+</section>
+{% else %}
+{{ state("empty", "No indicator rows yet.", "Run the indicator pipeline to fill this page.") }}
+{% endfor %}
+{% endblock %}
