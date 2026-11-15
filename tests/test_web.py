@@ -11,7 +11,7 @@ from app.config import Settings
 from app.db import DATA
 from app.main import create_app
 from app.templates import PLAIN_TEMPLATES, TEMPLATES, WEAK_RETRIEVAL_TEMPLATE, render
-from web.public import CHART_JS_SRI, CHART_JS_URL, SENDER_PATTERN, STATIC, client_address
+from web.public import SENDER_PATTERN, STATIC, client_address, water_summary
 from web.ratelimit import RateLimiter
 from web.translate import ENGLISH, english_gloss
 
@@ -42,20 +42,29 @@ def test_home_page_renders(client: TestClient) -> None:
     html = response.text
     assert "<h1>" in html
     assert 'id="sim-form"' in html
-    assert 'id="rotation-chart"' in html
+    assert 'id="water-chart"' in html
+    assert 'id="sim-steps"' in html
     assert "/static/site.css" in html
+    assert "/static/public.css" in html
     assert "/static/simulator.js" in html
-    assert re.search(r'<label for="sim-input">', html)
+    assert re.search(r'<label [^>]*for="sim-input"', html)
     assert 'name="viewport"' in html
 
 
-def test_home_chart_script_is_pinned_with_sri(client: TestClient) -> None:
+def test_home_loads_no_third_party_script(client: TestClient) -> None:
     html = client.get("/").text
-    assert f'src="{CHART_JS_URL}"' in html
-    assert f'integrity="{CHART_JS_SRI}"' in html
-    assert re.search(r"chart\.js@\d+\.\d+\.\d+/", CHART_JS_URL)
-    assert CHART_JS_SRI.startswith("sha384-")
-    assert 'crossorigin="anonymous"' in html
+    assert re.findall(r'<script src="([^"]+)"', html) == ["/static/simulator.js"]
+
+
+def test_home_chart_is_server_rendered_from_indicators(client: TestClient) -> None:
+    summary = water_summary(client.app.state.settings.db_path)
+    assert [item["crop"] for item in summary] == ["rice", "mungbean", "soybean"]
+    html = client.get("/").text
+    for item in summary:
+        assert f"{item['normal']} of {item['normal_total']} ({item['normal_pct']}%)" in html
+        assert f"{item['elnino']} of {item['elnino_total']} ({item['elnino_pct']}%)" in html
+    best = max(summary, key=lambda item: item["elnino_pct"])
+    assert f"{best['label'].lower()} holds up" in html
 
 
 def test_wordmark_shown_until_logo_exists(client: TestClient) -> None:

@@ -31,7 +31,7 @@ Farmers still use SMS; the website is how judges, technicians and the team reach
 | Language | Python 3.13 | Already used by the data scripts |
 | Web framework | FastAPI on Uvicorn, one process | Background tasks keep running after the 200 response; one app serves API, website and admin |
 | Web pages | Server-rendered Jinja2 templates, plain CSS, a small vanilla JavaScript file for the simulator | No frontend build step and no second deployment |
-| Chart | Chart.js, loaded from a pinned CDN version | One chart; no chart backend |
+| Chart | Server-rendered HTML and CSS bars | One chart; no chart library, no third-party script |
 | Database | SQLite through the standard `sqlite3` module, one file, WAL mode | Enough for one municipality; no setup time |
 | Engine and pipeline | Plain Python (`csv`, `math`, `statistics`), no model call | Deterministic and testable; 16,753 daily rows need no dataframe library |
 | Data collection | `requests`, `pymupdf`, `trafilatura` | Already used by `scripts/` |
@@ -42,7 +42,7 @@ Farmers still use SMS; the website is how judges, technicians and the team reach
 | Hosting | One VPS, Caddy as reverse proxy, the app as a systemd service | Automatic HTTPS and restart on failure |
 | Tests | `pytest`, with FastAPI's test client | Covers parser, engine, templates and routes |
 
-The embedding model and the Chart.js version are proposals; record the exact names and versions in `AI_USE.md` and the citations list once installed.
+The embedding model is a proposal; record the exact names and versions in `AI_USE.md` and the citations list once installed.
 
 ### Requirements
 

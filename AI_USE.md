@@ -17,9 +17,8 @@ This file describes where AI models are used in AgriChat and what people checked
   The embedding model `paraphrase-multilingual-MiniLM-L12-v2`, run locally through `sentence-transformers`, ranks short passages from the knowledge base for WHY answers.
   It is optional (`EMBEDDING_MODEL`) and does not generate text.
   It runs through `sentence-transformers` 6.3.0, as pinned in `uv.lock`; the model weights are downloaded on first start from the Hugging Face hub at the revision current then.
-- **Chart library.**
-  The home page chart uses Chart.js 4.4.7, loaded from `cdn.jsdelivr.net` with the subresource integrity hash `sha384-vsrfeLOOY6KuIYKDlmVH5UiBmgIdB1oEf7p01YgWHuqmOHfZr374+odEv96n9tNC`.
-  It is a plain charting library, not an AI component.
+- **Chart.**
+  The home page chart is plain server-rendered HTML and CSS; no chart library or third-party script is loaded.
 - **Recommendations.**
   The crop ranking, scores and reason codes come from the deterministic engine in `engine/`, not from a model.
 - **Privacy.**

@@ -18,8 +18,9 @@ WEB = Path(__file__).resolve().parent
 STATIC = WEB / "static"
 LOGO = STATIC / "img" / "logo.png"
 REPO_URL = "https://github.com/17eb/agrichat"
-CHART_JS_URL = "https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"
-CHART_JS_SRI = "sha384-vsrfeLOOY6KuIYKDlmVH5UiBmgIdB1oEf7p01YgWHuqmOHfZr374+odEv96n9tNC"
+PILOT_BARANGAY = "BATAC"
+PILOT_SOW_WINDOW = "11-01/11-30"
+CROP_LABELS = {"rice": "Rice", "mungbean": "Mungbean", "soybean": "Soybean"}
 SIMULATE_LIMIT = 20
 SIMULATE_WINDOW_SECONDS = 600
 SENDER_PATTERN = r"^sim-[0-9a-f]{32}$"
@@ -29,8 +30,6 @@ router = APIRouter()
 templates = Jinja2Templates(directory=WEB / "templates")
 templates.env.globals["logo_available"] = LOGO.exists
 templates.env.globals["repo_url"] = REPO_URL
-templates.env.globals["chart_js_url"] = CHART_JS_URL
-templates.env.globals["chart_js_sri"] = CHART_JS_SRI
 
 
 class SimulatorGateway:
@@ -65,9 +64,49 @@ def smap_comparison() -> tuple[list[str], list[list[str]]]:
     return (rows[0], rows[1:]) if rows else ([], [])
 
 
+def share(adequate: int, total: int) -> int:
+    """Whole-number percentage, 0 when there are no seasons."""
+    return round(adequate * 100 / total) if total else 0
+
+
+def water_summary(db_path: str | Path) -> list[dict[str, Any]]:
+    """Per crop, how many pilot dry seasons had enough water in normal and El Nino years."""
+    with connect_db(db_path) as connection:
+        rows = connection.execute(
+            "SELECT crop, n_years, n_adequate, n_elnino, n_adequate_elnino FROM indicators"
+            " WHERE barangay_code = ? AND sow_window = ?",
+            (PILOT_BARANGAY, PILOT_SOW_WINDOW),
+        ).fetchall()
+    by_crop = {row["crop"]: row for row in rows}
+    summary = []
+    for crop, label in CROP_LABELS.items():
+        row = by_crop.get(crop)
+        if row is None:
+            continue
+        normal_total = row["n_years"] - row["n_elnino"]
+        normal_adequate = row["n_adequate"] - row["n_adequate_elnino"]
+        summary.append(
+            {
+                "crop": crop,
+                "label": label,
+                "normal": normal_adequate,
+                "normal_total": normal_total,
+                "normal_pct": share(normal_adequate, normal_total),
+                "elnino": row["n_adequate_elnino"],
+                "elnino_total": row["n_elnino"],
+                "elnino_pct": share(row["n_adequate_elnino"], row["n_elnino"]),
+            }
+        )
+    return summary
+
+
 @router.get("/")
 def home(request: Request) -> Any:
-    return templates.TemplateResponse(request, "home.html", {"page": "home"})
+    summary = water_summary(request.app.state.settings.db_path)
+    best = max(summary, key=lambda item: item["elnino_pct"], default=None)
+    return templates.TemplateResponse(
+        request, "home.html", {"page": "home", "water": summary, "best": best}
+    )
 
 
 @router.get("/data")

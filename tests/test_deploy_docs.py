@@ -3,7 +3,6 @@ from pathlib import Path
 
 from app.config import DEFAULT_DB_PATH
 from scripts.build_provenance import render
-from web.public import CHART_JS_URL
 
 ROOT = Path(__file__).resolve().parent.parent
 LONG_DASHES = (chr(0x2014), chr(0x2013))
@@ -60,8 +59,7 @@ def test_caddyfile_proxies_to_local_app_with_security_headers() -> None:
     policy = {
         part.split()[0]: part.split()[1:] for part in match.group(1).split(";") if part.strip()
     }
-    cdn_origin = "https://" + CHART_JS_URL.split("/")[2]
-    assert cdn_origin in policy["script-src"]
+    assert policy["script-src"] == ["'self'"]
     assert policy["frame-ancestors"] == ["'none'"]
     assert policy["object-src"] == ["'none'"]
     assert "'unsafe-inline'" not in policy["script-src"]
