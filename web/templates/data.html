@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Data, limits and AI use - AgriChat{% endblock %}
+{% block content %}
+<h1>Data, limits and AI use</h1>
+<p class="lead">Everything AgriChat says comes from the public datasets below, a fixed set of Filipino reply templates and a small set of Department of Agriculture guides.</p>
+
+<section aria-labelledby="nasa">
+  <h2 id="nasa">NASA data and what each does</h2>
+  <div class="grid-2">
+    <div class="card">
+      <h3>NASA POWER</h3>
+      <p>Daily rain, temperature, humidity, wind, sunshine and root-zone soil wetness for the Batac grid cell, 1981 to 2025, plus 2026 to date.
+        It drives the water budget behind every comparison and the hindcast, because it covers all 45 dry seasons from one source.</p>
+    </div>
+    <div class="card">
+      <h3>NASA SMAP Level 4</h3>
+      <p>A 9 km model-assimilated estimate of root-zone soil moisture, 3-hourly, from 2015.
+        It gives the "conditions now" soil-wetness figure, ranked against the same dates in other years.
+        If SMAP data is more than 7 days old, soil wetness falls back to POWER and the row says which source was used.</p>
+    </div>
+  </div>
+</section>
+
+<section aria-labelledby="compare">
+  <h2 id="compare">SMAP versus POWER soil wetness</h2>
+  {% if smap_rows %}
+  <div class="table-wrap" tabindex="0" role="region" aria-label="SMAP versus POWER comparison">
+    <table class="data-table">
+      <thead><tr>{% for name in smap_header %}<th scope="col">{{ name }}</th>{% endfor %}</tr></thead>
+      <tbody>{% for row in smap_rows %}<tr>{% for cell in row %}<td>{{ cell }}</td>{% endfor %}</tr>{% endfor %}</tbody>
+    </table>
+  </div>
+  {% else %}
+  <p class="empty">The SMAP comparison is not available yet. It appears here once the SMAP data has been fetched and checked against POWER for 2015 to 2025.</p>
+  {% endif %}
+</section>
+
+<section aria-labelledby="other">
+  <h2 id="other">Other data and terms</h2>
+  <ul>
+    <li><strong>NOAA Oceanic Niño Index (ONI):</strong> labels each dry season as El Niño or not, using a fixed rule. NOAA CPC data; the file states no use terms and terms are not verified.</li>
+    <li><strong>FAO-56 crop tables:</strong> crop water coefficients and growth stages. Used as reference values; FAO's copyright statement requires permission for reuse beyond citation.</li>
+    <li><strong>Department of Agriculture guides:</strong> PinoyRice, HVCDP and BSWM documents behind the WHY answers. No reuse terms are stated on those sites; each answer cites its source tag.</li>
+    <li><strong>Batac barangay directory:</strong> public municipal list, hand-transcribed.</li>
+  </ul>
+  <p>Per-file sources, access times and terms are in the repository's provenance file.</p>
+</section>
+
+<section aria-labelledby="limits">
+  <h2 id="limits">Limits</h2>
+  <ul>
+    <li>Advice is at municipality scale, about 50 km, not per plot. The POWER cell averages 264 m elevation; Batac rice land is lower and slightly warmer.</li>
+    <li>Canal and pump supply is not visible to satellites. The water budget is rain-only and valid for rainfed fields.</li>
+    <li>Prices, pests and soil nutrients are outside the data.</li>
+    <li>The pilot covers one municipality and one rotation set.</li>
+    <li>Crop water figures are FAO reference values, not local field measurements.</li>
+    <li>FAO Kc values are designed for Penman-Monteith ET0; AgriChat uses Hargreaves.</li>
+    <li>Effective rain comes from FAO Training Manual 3, Table 6.</li>
+    <li>There is no soil filter; root-zone water capacity is one assumed number from the reviewer.</li>
+    <li>SMAP Level 4 is a 9 km estimate; it does not see canal irrigation or a single field. Its record starts in 2015, so the "conditions now" baseline is about 11 years with few El Niño dry seasons, and the hindcast uses POWER soil wetness instead.</li>
+    <li>Mungbean and soybean have few usable guide passages, and the soybean guide is in Cebuano.</li>
+    <li>The ONI is the ERSST v6 version from NOAA CPC; the 2025 season label is provisional.</li>
+  </ul>
+</section>
+
+<section aria-labelledby="ai">
+  <h2 id="ai">How AI is used</h2>
+  <ul>
+    <li>A language model reads a farmer's free text into a command only when the keyword parser fails. It does not write advice.</li>
+    <li>Every advice reply is built from a fixed template and engine reason codes, so it can be traced and tested. The service works with the model switched off.</li>
+    <li>A model-written rewording, if ever enabled, is sent only when its numbers and crop name match the engine output and it passes the length and character checks.</li>
+    <li>The model never sees phone numbers. Questions about fertilizer, chemicals or pests are referred to the municipal agriculture office.</li>
+    <li>Phone numbers are stored only as keyed hashes; STOP deletes a farmer's profile and messages.</li>
+  </ul>
+</section>
+
+<section aria-labelledby="repo">
+  <h2 id="repo">Code and data</h2>
+  <p><a href="{{ repo_url }}">The repository</a> holds the code, the datasets, the hindcast results and the provenance record.</p>
+</section>
+{% endblock %}
