@@ -1,0 +1,38 @@
+[Unit]
+Description=AgriChat SMS crop-rotation advice
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=agrichat
+Group=agrichat
+WorkingDirectory=/opt/agrichat
+# Mode 0600, owned by the service user. Plain KEY=value lines; single quotes are stripped.
+EnvironmentFile=/etc/agrichat/agrichat.env
+Environment=HF_HOME=/var/cache/agrichat
+ExecStart=/opt/agrichat/.venv/bin/uvicorn app.main:app --host 127.0.0.1 --port 8000 --proxy-headers --forwarded-allow-ips=127.0.0.1
+Restart=on-failure
+RestartSec=5
+
+# Hardening: read-only system, writes only under data/ (SQLite file and vector cache).
+NoNewPrivileges=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectSystem=strict
+ProtectHome=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+RestrictRealtime=true
+RestrictNamespaces=true
+LockPersonality=true
+SystemCallArchitectures=native
+ReadWritePaths=/opt/agrichat/data
+# Model download cache (HF_HOME) lives in /var/cache/agrichat, writable by the service user.
+CacheDirectory=agrichat
+UMask=0077
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,16 @@
+# Replace the site address with the real domain before installing.
+# Caddy obtains and renews the certificate and redirects HTTP to HTTPS on its own.
+agrichat.example.org {
+	encode zstd gzip
+
+	header {
+		Strict-Transport-Security "max-age=31536000"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "same-origin"
+		Content-Security-Policy "default-src 'self'; script-src 'self' https://cdn.jsdelivr.net; style-src 'self'; style-src-attr 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'"
+		-Server
+	}
+
+	# The app listens on localhost only; Caddy is the single public entry point.
+	reverse_proxy 127.0.0.1:8000
+}
