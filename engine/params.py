@@ -33,3 +33,5 @@ WATER_OK_RELIABILITY = 0.5
 TIMING_REASON_FREQUENCY = 0.2
 # PLACEHOLDER: pending reviewer; no income preference until flags are supplied.
 DEFAULT_INCOME_FLAG = 0.0
+# PLACEHOLDER: pending reviewer; calibrate against the farmer question set.
+RETRIEVAL_THRESHOLD = 0.4

@@ -11,3 +11,4 @@ data/kb/raw/
 data/crops/raw/
 data/smap/raw/
 snapshots/
+data/kb/vectors.npz

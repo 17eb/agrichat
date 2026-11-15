@@ -22,6 +22,7 @@ from app.sms import HttpSmsGateway
 from app.templates import TEMPLATES, clean_sms, render, validate_sms
 from app.webhook import canonical_mobile, verify_token
 from engine.reason_codes import REASON_CODES
+from kb.retrieve import Hit
 
 
 class FakeGateway:
@@ -67,7 +68,12 @@ def environment(
         phone_hash_secret=hashlib.sha256(b"hash-fixture-material").hexdigest(),
     )
     gateway = FakeGateway()
-    application = create_app(settings, gateway)
+
+    class Retrieval:
+        def search(self, question: str, crop: str) -> list[Hit]:
+            return [Hit("approved", "PinoyRice", crop, "water", "Approved passage", 0.9)]
+
+    application = create_app(settings, gateway, retriever=Retrieval())
     with TestClient(application) as client:
         handler = application.state.message_handler
         handler.today = lambda: date(2026, 11, 15)
@@ -153,7 +159,7 @@ def test_plant_why_and_session_memory(environment: SmsEnvironment) -> None:
     assert why.template_id == "T_WHY"
     assert "sapat ang tubig sa karamihan ng nakaraang tag-araw" in why.text
     assert "tumutulong ito sa lupa pagkatapos ng palay" in why.text
-    assert "FAO-56" in why.text
+    assert "PinoyRice" in why.text
     with connect_db(settings.db_path) as connection:
         rows = connection.execute("SELECT * FROM messages").fetchall()
         assert len(rows) == 3
@@ -606,6 +612,7 @@ def test_why_uses_first_two_distinct_reasons(environment: SmsEnvironment) -> Non
                     {
                         "reasons": ["R_WATER_OK", "R_WATER_OK", "R_LESS_WATER", "R_LEGUME"],
                         "source": "FAO-56",
+                        "crop": "rice",
                     }
                 ),
             ),

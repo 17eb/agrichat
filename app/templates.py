@@ -41,6 +41,9 @@ TEMPLATES = {
         "Binura na ang iyong rehistro at mga mensahe. I-text ang HELP para magsimula muli."
     ),
 }
+WEAK_RETRIEVAL_TEMPLATE = (
+    "Kulang ang batayan sa aming sanggunian. Kumonsulta sa technician sa agri office ng munisipyo."
+)
 WHY_SINGLE_TEMPLATE = "Dahilan: {reason1}. Batayan: {sources}. Di sakop: presyo, peste."
 PLAIN_TEMPLATES = {
     "T_REG_OK": "Rehistrado: {brgy}, {tubig}. I-text ang LAST at huling tanim.",
@@ -88,6 +91,8 @@ def render(template_id: str, **values: object) -> Reply:
     template = TEMPLATES[template_id]
     if template_id == "T_WHY" and not values.get("reason2"):
         template = WHY_SINGLE_TEMPLATE
+    if template_id == "T_REFER" and values.get("weak_retrieval"):
+        template = WEAK_RETRIEVAL_TEMPLATE
     text = clean_sms(template.format(**values))
     if validate_sms(text):
         return Reply(template_id, text)

@@ -1,6 +1,7 @@
 """Keyword message handling using stored profiles and precomputed indicators."""
 
 import json
+import logging
 import re
 import sqlite3
 from collections.abc import Callable
@@ -12,12 +13,16 @@ import httpx
 
 from app.config import Settings
 from app.db import EventSource, connect_db, expire_event_phones, hash_phone, record_event
+from app.llm import restricted
 from app.parser import CROP_ALIASES, CROP_NAMES, Command, normalize, parse
 from app.sms import SmsGateway
 from app.templates import Reply, render, validate_sms
 from engine.crops import load_crops
 from engine.reason_codes import REASON_CODES
 from engine.rotation import Indicator, Profile, Result, recommend
+from kb.retrieve import Retriever, strong
+
+logger = logging.getLogger(__name__)
 
 
 class IntentExtractor(Protocol):
@@ -35,19 +40,24 @@ class MessageHandler:
         gateway: SmsGateway,
         extractor: IntentExtractor | None = None,
         today: Callable[[], date] = today_in_manila,
+        retriever: Retriever | None = None,
     ) -> None:
         self.settings = settings
         self.gateway = gateway
         self.extractor = extractor
+        self.retriever = retriever
         self.today = today
         self.crops = load_crops()
 
     def handle(self, sender: str, text: str) -> Reply:
         phone = hash_phone(sender, self.settings)
         command = parse(text)
+        unsafe = restricted(text) and (command is None or command.intent not in {"STOP", "HELP"})
+        if unsafe:
+            command = None
         source: EventSource = "keyword"
         model_failed = False
-        if command is None and self.settings.llm_enabled:
+        if command is None and not unsafe and self.settings.llm_enabled:
             source = "model"
             try:
                 if self.extractor is None:
@@ -61,19 +71,7 @@ class MessageHandler:
             context: dict[str, str] = {}
             if command is None:
                 source = "fallback"
-                refer = any(
-                    word in normalize(text).split()
-                    for word in (
-                        "PATABA",
-                        "GAMOT",
-                        "PESTE",
-                        "FERTILIZER",
-                        "CHEMICAL",
-                        "CHEMICALS",
-                        "PEST",
-                        "PESTS",
-                    )
-                )
+                refer = unsafe
                 reply = render("T_REFER" if refer else "T_FALLBACK")
                 event = "refusal" if refer else "fallback_used"
             else:
@@ -203,7 +201,7 @@ class MessageHandler:
             if tag is None:
                 return render("T_REFER"), "refusal"
             context["recommendation"] = json.dumps(
-                {"reasons": best.reason_codes[:2], "source": tag.group(1)}
+                {"reasons": best.reason_codes[:2], "source": tag.group(1), "crop": best.name}
             )
             return render(
                 result.template,
@@ -222,11 +220,35 @@ class MessageHandler:
             if row and row[0]:
                 context = json.loads(row[0])
                 reasons = list(dict.fromkeys(REASON_CODES[code] for code in context["reasons"]))[:2]
+                crop = context.get("crop")
+                if not crop:
+                    return render("T_REFER", weak_retrieval=True), "refusal"
+                if self.retriever is None or crop in {"mungbean", "soybean"}:
+                    sources = None
+                    if self.retriever is not None:
+                        try:
+                            hits = self.retriever.search(" ".join(reasons), crop)
+                        except Exception:
+                            logger.exception("WHY retrieval failed")
+                            return render("T_REFER", weak_retrieval=True), "refusal"
+                        sources = hits[0].source_tag if hits else None
+                    sources = sources or context.get("source")
+                    if not sources:
+                        return render("T_REFER", weak_retrieval=True), "refusal"
+                else:
+                    try:
+                        hits = self.retriever.search(" ".join(reasons), crop)
+                    except Exception:
+                        logger.exception("WHY retrieval failed")
+                        return render("T_REFER", weak_retrieval=True), "refusal"
+                    if not strong(hits):
+                        return render("T_REFER", weak_retrieval=True), "refusal"
+                    sources = ", ".join(dict.fromkeys(hit.source_tag for hit in hits))
                 return render(
                     "T_WHY",
                     reason1=reasons[0],
                     reason2=reasons[1] if len(reasons) > 1 else "",
-                    sources=context["source"],
+                    sources=sources,
                 ), "command_handled"
         return render("T_FALLBACK"), "fallback_used"
 
