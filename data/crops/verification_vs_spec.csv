@@ -1,0 +1,15 @@
+item,spec_value,source_value,match,note
+rice kc_ini,1.05,1.05,yes,crop row value
+rice kc_mid,1.20,1.2,yes,
+rice kc_end,0.90 to 0.60,0.9 to 0.6,yes,
+mungbean kc_ini,0.40,0.4,yes,group value on the Table 12 header row (crop row blank)
+mungbean kc_mid,1.05,1.05,yes,
+mungbean kc_end,0.60 to 0.35,0.6 to 0.35,yes,"fn6: first value harvested fresh, second harvested dry"
+corn kc_ini,0.30,0.3,yes,group value on the Table 12 header row (crop row blank)
+corn kc_mid,1.20,1.2,yes,
+corn kc_end,0.60 to 0.35,0.6 to 0.35,yes,"fn11: first value harvest at high grain moisture, second after complete field drying"
+soybean kc_ini,0.40,0.4,yes,group value on the Table 12 header row (crop row blank)
+soybean kc_mid,1.15,1.15,yes,
+soybean kc_end,0.50,0.5,yes,
+hargreaves_eto formula,"ET0 = 0.0023 x (Tmean + 17.8) x sqrt(Tmax - Tmin) x Ra, Ra in mm/day","ETo = 0.0023 * (Tmean + 17.8) * (Tmax - Tmin)^0.5 * Ra (ETo and Ra in mm day -1; Tmean, Tmax, Tmin in degC)",yes,"Equation 52, FAO-56 Chapter 3"
+effective_rainfall formula,0.8 P - 25 when P above 75 mm; 0.6 P - 10 when P below 75 mm,no formula stated; Table 6 lists P to Pe pairs,not_found,computed here: draft rule reproduces 26 of 26 Table 6 values to within 0.5 mm

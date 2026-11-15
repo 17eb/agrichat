@@ -1,0 +1,6 @@
+crop,kc_ini,kc_mid,kc_end,days,is_legume,income_flag,source
+rice,1.05,1.2,0.75,108,0,,"FAO-56 Table 12 (kc_ini 1.05; kc_mid 1.2; kc_end range 0.6-0.9; kc_end is the midpoint); days: midpoint of DA range 102-114 (El Nino, La Nina, at Pagpapalay; Modified dry direct seeding technology); is_legume from Table 12 group heading"
+mungbean,0.4,1.05,0.475,65,1,,FAO-56 Table 12 (kc_ini 0.4 (group value); kc_mid 1.05; kc_end range 0.35-0.6; kc_end is the midpoint); days: midpoint of DA range 60-70 (Mungbean Production Guide); is_legume from Table 12 group heading
+corn,0.3,1.2,0.475,125,0,,"FAO-56 Table 12 (kc_ini 0.3 (group value); kc_mid 1.2; kc_end range 0.35-0.6; kc_end is the midpoint); days: no DA duration found, FAO-56 Table 11 suggested row (October, India (dry, cool)) total 125; is_legume from Table 12 group heading"
+soybean,0.4,1.15,0.5,95,1,,FAO-56 Table 12 (kc_ini 0.4 (group value); kc_mid 1.15; kc_end 0.5; kc_end is the midpoint); days: midpoint of DA range 90-100 (Giya sa Pagpananum ug Soybeans (Technoguide No. 07-2018)); is_legume from Table 12 group heading
+peanut,0.4,1.15,0.6,130,1,,"FAO-56 Table 12 (kc_ini 0.4 (group value); kc_mid 1.15; kc_end 0.6; kc_end is the midpoint); days: no DA duration found, FAO-56 Table 11 suggested row (Dry, West Africa) total 130; is_legume from Table 12 group heading"

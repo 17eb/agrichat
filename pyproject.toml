@@ -1,0 +1,54 @@
+[project]
+name = "agrichat"
+version = "0.1.0"
+description = "SMS crop-rotation advice for rainfed rice farmers, built on NASA POWER and SMAP data"
+requires-python = ">=3.13,<3.14"
+license = "Apache-2.0"
+dependencies = [
+    "fastapi>=0.115",
+    "uvicorn[standard]>=0.32",
+    "jinja2>=3.1",
+    "python-multipart>=0.0.12",
+    "argon2-cffi>=23.1",
+    "itsdangerous>=2.2",
+    "httpx>=0.27",
+    "requests>=2.32",
+    "openai>=1.50",
+    "numpy>=2.1",
+    "sentence-transformers>=3.2",
+    "torch>=2.5",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.7",
+    "playwright>=1.48",
+]
+
+[tool.uv]
+package = false
+
+[tool.uv.sources]
+torch = { index = "pytorch-cpu" }
+
+[[tool.uv.index]]
+name = "pytorch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py313"
+extend-exclude = ["docs", "data"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "S", "SIM", "RUF"]
+ignore = ["S101", "RUF001", "RUF002", "RUF003"]
+
+[tool.ruff.lint.per-file-ignores]
+"tests/**" = ["S105", "S106"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

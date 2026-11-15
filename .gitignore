@@ -1,0 +1,13 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.db
+*.db-wal
+*.db-shm
+.env
+data/kb/raw/
+data/crops/raw/
+data/smap/raw/
+snapshots/
