@@ -5,6 +5,7 @@ from collections.abc import AsyncIterator
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from app.config import Settings
 from app.db import DATA, init_db, seed_sms_data
@@ -13,6 +14,9 @@ from app.llm import create_model
 from app.sms import HttpSmsGateway, SmsGateway
 from app.webhook import router
 from kb.retrieve import Retriever, SentenceEmbedder
+from web.public import SIMULATE_LIMIT, SIMULATE_WINDOW_SECONDS, STATIC, SimulatorGateway
+from web.public import router as public_router
+from web.ratelimit import RateLimiter
 
 logger = logging.getLogger(__name__)
 
@@ -44,11 +48,17 @@ def create_app(
             model,
             retriever=retrieval,
         )
+        application.state.simulator_handler = MessageHandler(
+            config, SimulatorGateway(), model, retriever=retrieval
+        )
         yield
 
     application = FastAPI(title="AgriChat", lifespan=lifespan)
     application.state.settings = config
+    application.state.simulate_limiter = RateLimiter(SIMULATE_LIMIT, SIMULATE_WINDOW_SECONDS)
     application.include_router(router)
+    application.include_router(public_router)
+    application.mount("/static", StaticFiles(directory=STATIC), name="static")
 
     @application.get("/health")
     def health() -> dict[str, bool]:
