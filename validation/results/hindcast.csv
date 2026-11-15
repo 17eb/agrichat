@@ -1,0 +1,7 @@
+crop,method,n_seasons,n_elnino,n_flagged,hits,misses,false_alarms,correct_negatives
+rice,engine,45,15,38,14,1,24,6
+rice,baseline,45,15,31,14,1,17,13
+mungbean,engine,45,15,16,7,8,9,21
+mungbean,baseline,45,15,33,14,1,19,11
+soybean,engine,45,15,29,14,1,15,15
+soybean,baseline,45,15,31,14,1,17,13

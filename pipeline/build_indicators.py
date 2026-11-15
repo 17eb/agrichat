@@ -5,6 +5,7 @@ Percentiles use the percentage of historical values at or below today's value.
 """
 
 import csv
+from collections.abc import Iterator
 from datetime import date, timedelta
 from pathlib import Path
 from statistics import median
@@ -147,6 +148,35 @@ def conditions_now(
     return result
 
 
+def load_enso(data: Path = DATA) -> dict[int, bool]:
+    """El Nino label per dry-season start year, as built by the fixed ENSO rule."""
+    return {
+        int(row["dry_season_start_year"]): row["el_nino"] == "1"
+        for row in read_csv(data / "oni/enso_dry_seasons.csv")
+    }
+
+
+def season_budgets(
+    crop: Crop,
+    weather: dict[date, dict[str, float]],
+    years: list[int],
+    sow_window: tuple[tuple[int, int], tuple[int, int]],
+) -> Iterator[tuple[int, date, dict[str, float]]]:
+    """Yield year, sowing date and water budget for each season with complete weather."""
+    start = sow_window[0]
+    for year in sorted(years):
+        sowing = date(year + (start[0] < DRY_SEASON_START_MONTH), *start)
+        budget = season_budget(
+            crop,
+            sowing,
+            weather,
+            params.ROOT_ZONE_WATER_CAPACITY_MM,
+            params.RICE_EXTRA_ALLOWANCE_MM,
+        )
+        if budget is not None:
+            yield year, sowing, budget
+
+
 def summarize(
     crop: Crop,
     weather: dict[date, dict[str, float]],
@@ -161,17 +191,7 @@ def summarize(
     ratios, adequate, elnino_adequate = [], [], []
     heat, harvest_rain = [], []
     _, flower_start, flower_end, _ = stage_boundaries(crop)
-    for year in sorted(enso):
-        sowing = date(year + (start[0] < DRY_SEASON_START_MONTH), *start)
-        budget = season_budget(
-            crop,
-            sowing,
-            weather,
-            params.ROOT_ZONE_WATER_CAPACITY_MM,
-            params.RICE_EXTRA_ALLOWANCE_MM,
-        )
-        if budget is None:
-            continue
+    for year, sowing, budget in season_budgets(crop, weather, list(enso), sow_window):
         ratio = budget["ratio"]
         ratios.append(ratio)
         enough = ratio >= params.ADEQUACY_THRESHOLD
@@ -214,10 +234,7 @@ def build_indicators(
     as_of: date | None = None,
 ) -> list[dict[str, str | float | int]]:
     weather = load_weather(data)
-    enso = {
-        int(row["dry_season_start_year"]): row["el_nino"] == "1"
-        for row in read_csv(data / "oni/enso_dry_seasons.csv")
-    }
+    enso = load_enso(data)
     current = conditions_now(weather, data / "smap/smap_now.csv", as_of or date.today())
     rows = [
         summarize(crop, weather, enso, params.SOWING_WINDOW)
