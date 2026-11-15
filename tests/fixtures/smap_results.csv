@@ -1,0 +1,8 @@
+ID,Date,Time,Pixel Latitude,Pixel Longitude,SPL4SMGP_008_Geophysical_Data_sm_rootzone,SPL4SMGP_008_Geophysical_Data_sm_surface,SPL4SMGP_008_Geophysical_Data_sm_rootzone_wetness,SPL4SMGP_008_Geophysical_Data_sm_rootzone_percentile
+pilot,2015-03-31,12:00:00,18.1,120.6,0.1,0.05,0.2,10
+pilot,2015-03-31,15:00:00,18.1,120.6,0.3,-9999,0.4,30
+pilot,2015-03-31,18:00:00,18.1,120.6,0.6,0.2,0.8,80
+pilot,2015-03-31,21:00:00,18.1,120.6,-9999,-9999,-9999,-9999
+pilot,2016-03-31,00:00:00,18.1,120.6,0.4,0.1,0.5,40
+pilot,2016-04-16,00:00:00,18.1,120.6,0.8,0.3,0.9,90
+pilot,2017-03-31,00:00:00,18.1,120.6,0.3,0.1,0.4,30
