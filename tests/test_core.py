@@ -177,9 +177,9 @@ def test_barangay_data() -> None:
 
 
 def test_reviewer_placeholders_match_spec() -> None:
-    assert params.SOWING_WINDOW is None
-    assert params.ROOT_ZONE_WATER_CAPACITY_MM is None
-    assert params.RICE_EXTRA_ALLOWANCE_MM is None
+    assert params.SOWING_WINDOW == ((11, 1), (11, 30))
+    assert params.ROOT_ZONE_WATER_CAPACITY_MM == 100.0
+    assert params.RICE_EXTRA_ALLOWANCE_MM == 0.0
     assert params.ADEQUACY_THRESHOLD == 0.8
     assert params.KC_END == {"rice": 0.75, "mungbean": 0.475, "soybean": 0.5}
     assert params.SCORING_WEIGHTS == {
