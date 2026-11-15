@@ -26,6 +26,7 @@ def test_configuration_reads_every_environment_variable(monkeypatch: pytest.Monk
         "LLM_KEY",
         "LLM_MODEL",
         "LLM_ENABLED",
+        "EMBEDDING_MODEL",
         "DB_PATH",
         "SEASON_EL_NINO",
         "ADMIN_PASSWORD_HASH",

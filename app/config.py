@@ -35,6 +35,7 @@ class Settings:
     llm_endpoint: str = ""
     llm_key: str = field(default="", repr=False)
     llm_model: str = ""
+    embedding_model: str = ""
     llm_enabled: bool = False
     db_path: str = DEFAULT_DB_PATH
     season_el_nino: bool = False
@@ -51,6 +52,7 @@ class Settings:
             llm_endpoint=os.getenv("LLM_ENDPOINT", ""),
             llm_key=os.getenv("LLM_KEY", ""),
             llm_model=os.getenv("LLM_MODEL", ""),
+            embedding_model=os.getenv("EMBEDDING_MODEL", ""),
             llm_enabled=_boolean("LLM_ENABLED"),
             db_path=os.getenv("DB_PATH", DEFAULT_DB_PATH),
             season_el_nino=_boolean("SEASON_EL_NINO"),
