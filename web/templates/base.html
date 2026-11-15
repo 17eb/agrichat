@@ -6,31 +6,33 @@
   <meta name="color-scheme" content="light dark">
   <title>{% block title %}AgriChat{% endblock %}</title>
   <meta name="description" content="{% block description %}Crop-rotation advice for rainfed rice farmers by SMS, built on NASA POWER and SMAP data.{% endblock %}">
+  <link rel="icon" href="/static/img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/static/img/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
   <link rel="stylesheet" href="/static/site.css">
+  <link rel="stylesheet" href="/static/public.css">
 </head>
-<body>
+<body class="site">
   <a class="skip-link" href="#main">Skip to content</a>
   <header class="site-header">
     <div class="wrap header-row">
       <a class="brand" href="/" aria-label="AgriChat home">
-        {% if logo_available() %}
-        <img src="/static/img/logo.png" alt="AgriChat" height="36">
-        {% else %}
+        <img src="/static/img/logo-icon.png" alt="" width="32" height="32">
         <span class="wordmark">AgriChat</span>
-        {% endif %}
       </a>
-      <nav aria-label="Main">
-        <a class="nav-link" href="/"{% if page == "home" %} aria-current="page"{% endif %}>Home</a>
+      <nav class="site-nav" aria-label="Main">
+        <a class="nav-link" href="/"{% if page == "home" %} aria-current="page"{% endif %}>Overview</a>
         <a class="nav-link" href="/data"{% if page == "data" %} aria-current="page"{% endif %}>Data and limits</a>
+        <a class="nav-cta" href="/#try">Try it</a>
       </nav>
     </div>
   </header>
-  <main id="main" class="wrap">
+  <main id="main">
     {% block content %}{% endblock %}
   </main>
   <footer class="site-footer">
-    <div class="wrap">
-      <p>AgriChat is a NASA Space Apps Challenge 2026 project (Field Shift). Advice is a data summary, not an agronomist's recommendation.</p>
+    <div class="wrap footer-row">
+      <p>AgriChat is a NASA Space Apps Challenge 2026 project (Field Shift).<br>Advice is a data summary, not an agronomist's recommendation.</p>
       <p><a href="{{ repo_url }}">Source code and data</a></p>
     </div>
   </footer>

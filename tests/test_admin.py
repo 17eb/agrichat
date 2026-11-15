@@ -110,6 +110,12 @@ def test_login_page_is_public_and_not_indexed(client: TestClient) -> None:
     assert 'type="password"' in response.text
     assert response.headers["cache-control"] == "no-store"
     assert response.headers["x-robots-tag"] == "noindex"
+    assert 'src="/static/img/logo.png" alt="AgriChat"' in response.text
+    assert 'href="/static/img/favicon.ico"' in response.text
+
+
+def test_sidebar_shows_logo_mark(session_client: TestClient) -> None:
+    assert 'src="/static/img/logo-icon.png"' in session_client.get("/admin").text
 
 
 def test_wrong_password_is_rejected(client: TestClient) -> None:

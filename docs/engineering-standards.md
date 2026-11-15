@@ -50,7 +50,7 @@ Where the spec is silent, choose the simplest design that is correct, secure and
 
 ## UI
 
-- Server-rendered Jinja2, plain CSS, one small vanilla JS file for the simulator; Chart.js from a pinned CDN version.
+- Server-rendered Jinja2, plain CSS, one small vanilla JS file for the simulator; the chart is HTML and CSS with no third-party script.
 - Works at 360 px wide with no horizontal scroll, 16 px side gutters, tap targets at least 44 px.
 - Light and dark color schemes both legible; text contrast at least WCAG AA.
 - Visible keyboard focus, labels on every input, semantic headings, alt text where images carry meaning.

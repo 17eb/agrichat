@@ -2,57 +2,141 @@
 {% block title %}AgriChat - SMS crop-rotation advice{% endblock %}
 {% block content %}
 <section class="hero">
-  <h1>Which crop after rice? Ask by SMS.</h1>
-  <p class="lead">AgriChat texts rainfed rice farmers in Batac, Ilocos Norte a plain-language comparison of rice, mungbean and soybean for the next dry season.
-    It counts how often past dry seasons had enough water, using 45 years of NASA POWER data and the El Niño record, and works on any keypad phone.</p>
-  <p>Replies are in Filipino and fit one 150-character message. Try the exchange below; nothing you type here is tied to a phone number.</p>
-</section>
-
-<section class="grid-2" aria-labelledby="sim-title">
-  <div>
-    <h2 id="sim-title">Try the SMS exchange</h2>
-    <p class="muted">Start with <strong>REG BATAC ULAN</strong>, then <strong>LAST PALAY</strong>, <strong>PLANT</strong> and <strong>WHY</strong>.</p>
-    <div class="phone" id="simulator">
-      <div class="phone-log" id="sim-log" role="log" aria-live="polite" aria-label="Conversation with AgriChat" tabindex="0">
-        <p class="phone-empty" id="sim-empty">No messages yet. Pick a suggestion or type your own.</p>
-      </div>
-      <p class="status" id="sim-status" role="status"></p>
-      <div class="chips" role="group" aria-label="Suggested messages">
-        <button type="button" class="chip" data-text="HELP">HELP</button>
-        <button type="button" class="chip" data-text="REG BATAC ULAN">REG BATAC ULAN</button>
-        <button type="button" class="chip" data-text="LAST PALAY">LAST PALAY</button>
-        <button type="button" class="chip" data-text="PLANT">PLANT</button>
-        <button type="button" class="chip" data-text="WHY">WHY</button>
-        <button type="button" class="chip" data-text="STOP">STOP</button>
-      </div>
-      <form class="phone-form" id="sim-form" autocomplete="off">
-        <label for="sim-input">Your message</label>
-        <div class="phone-row">
-          <input id="sim-input" name="text" type="text" maxlength="500" required enterkeyhint="send">
-          <button type="submit" class="button" id="sim-send">Send</button>
-        </div>
-      </form>
+  <div class="wrap">
+    <img class="hero-logo" src="/static/img/logo.png" alt="AgriChat" width="293" height="320">
+    <p class="eyebrow">NASA Space Apps Challenge 2026 &middot; Batac, Ilocos Norte</p>
+    <h1>Which crop after rice?<br>Ask by SMS.</h1>
+    <p class="hero-lead">AgriChat compares rice, mungbean and soybean for the next dry season using 45 years of NASA data.
+      One text in Filipino, on any keypad phone.</p>
+    <div class="hero-actions">
+      <a class="pill" href="#try">Try the SMS demo</a>
+      <a class="more-link" href="/data">How the data works</a>
     </div>
   </div>
+</section>
 
-  <div>
-    <h2 id="chart-title">Water in normal and El Niño years</h2>
-    <p class="muted">Share of past dry seasons (sowing 1 to 30 November) in which each crop had enough water, Batac, from the stored indicators.</p>
-    <div class="card chart-card">
-      <div class="chart-box"><canvas id="rotation-chart" role="img" aria-labelledby="chart-title" aria-describedby="chart-table"></canvas></div>
-      <p class="status" id="chart-status" role="status">Loading chart data.</p>
-      <p class="muted source">Source: NASA POWER 1981-2025 and NOAA ONI, AgriChat indicators</p>
-      <table class="data-table" id="chart-table" hidden>
-        <caption>Seasons with enough water</caption>
-        <thead><tr><th scope="col">Crop</th><th scope="col">Normal years</th><th scope="col">El Niño years</th></tr></thead>
-        <tbody id="chart-rows"></tbody>
-      </table>
+<section class="demo" id="try" aria-labelledby="sim-title">
+  <div class="wrap demo-grid">
+    <div class="demo-copy">
+      <p class="eyebrow">Try it</p>
+      <h2 id="sim-title">Four texts.<br>One clear answer.</h2>
+      <p class="section-lead">This is the real service, minus the phone network. Tap the suggestion in the phone to send each step.</p>
+      <ol class="steps" id="sim-steps">
+        <li class="step" data-step="0"><span class="step-dot" aria-hidden="true"></span><span><strong>REG BATAC ULAN</strong> Register your barangay as rain-fed (<span lang="fil">ulan</span>).</span></li>
+        <li class="step" data-step="1"><span class="step-dot" aria-hidden="true"></span><span><strong>LAST PALAY</strong> Tell it your last crop was rice (<span lang="fil">palay</span>).</span></li>
+        <li class="step" data-step="2"><span class="step-dot" aria-hidden="true"></span><span><strong>PLANT</strong> Get the crop comparison for the next dry season.</span></li>
+        <li class="step" data-step="3"><span class="step-dot" aria-hidden="true"></span><span><strong>WHY</strong> See the reason and the data behind it.</span></li>
+      </ol>
+      <div class="demo-actions">
+        <button type="button" class="pill pill-quiet" id="sim-play">Play the whole exchange</button>
+      </div>
+      <p class="fine">Nothing you type here is tied to a phone number.</p>
     </div>
-    <p class="muted">Enough water means the crop's water supply reached the reviewer-set share of its need. See <a href="/data">data and limits</a>.</p>
+
+    <div class="phone" id="simulator">
+      <div class="phone-screen">
+        <div class="phone-head">
+          <img class="avatar" src="/static/img/logo-icon.png" alt="" width="44" height="44">
+          <span class="phone-name">AgriChat</span>
+          <span class="phone-sub">SMS &middot; Filipino</span>
+          <button type="button" class="translate-toggle" id="sim-translate" aria-pressed="true">English</button>
+        </div>
+        <div class="phone-log" id="sim-log" role="log" aria-live="polite" aria-label="Conversation with AgriChat" tabindex="0">
+          <p class="phone-empty" id="sim-empty">Tap <strong>REG BATAC ULAN</strong> below to start.</p>
+        </div>
+        <p class="status" id="sim-status" role="status"></p>
+        <div class="suggest" id="sim-suggest" role="group" aria-label="Suggested messages">
+          <button type="button" class="chip chip-next" data-text="REG BATAC ULAN">REG BATAC ULAN</button>
+          <button type="button" class="chip" data-text="HELP">HELP</button>
+          <button type="button" class="chip" data-text="STOP">STOP</button>
+          <button type="button" class="chip chip-reset" data-reset>Start over</button>
+        </div>
+        <form class="compose" id="sim-form" autocomplete="off">
+          <label class="visually-hidden" for="sim-input">Your message</label>
+          <input id="sim-input" name="text" type="text" maxlength="500" required enterkeyhint="send" placeholder="Text Message">
+          <button type="submit" class="send" id="sim-send" aria-label="Send">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="water" aria-labelledby="water-title">
+  <div class="wrap">
+    <p class="eyebrow">The evidence</p>
+    {% if best %}
+    <h2 id="water-title">When El Niño comes,<br>{{ best.label | lower }} holds up.</h2>
+    {% else %}
+    <h2 id="water-title">Water in normal and El Niño years.</h2>
+    {% endif %}
+    <p class="section-lead">Share of past Batac dry seasons, sown 1 to 30 November, in which each crop had enough water.</p>
+
+    {% if water %}
+    <div class="water-card" id="water-chart">
+      <div class="segmented" role="group" aria-label="Which years to show" hidden>
+        <button type="button" class="segment" data-mode="normal" aria-pressed="true">Normal years</button>
+        <button type="button" class="segment" data-mode="elnino" aria-pressed="false">El Niño years</button>
+      </div>
+      <ul class="bars" data-mode="normal">
+        {% for item in water %}
+        <li class="bar-row" style="--normal: {{ item.normal_pct / 100 }}; --elnino: {{ item.elnino_pct / 100 }}">
+          <span class="bar-label">{{ item.label }}</span>
+          <span class="bar-track" aria-hidden="true"><span class="bar-fill"></span></span>
+          <span class="bar-value">
+            <span class="value-normal"><b>{{ item.normal_pct }}%</b> {{ item.normal }} of {{ item.normal_total }} seasons</span>
+            <span class="value-elnino"><b>{{ item.elnino_pct }}%</b> {{ item.elnino }} of {{ item.elnino_total }} seasons</span>
+          </span>
+        </li>
+        {% endfor %}
+      </ul>
+      <details class="numbers">
+        <summary>Show the numbers</summary>
+        <div class="table-wrap">
+          <table class="data-table">
+            <caption>Seasons with enough water</caption>
+            <thead><tr><th scope="col">Crop</th><th scope="col">Normal years</th><th scope="col">El Niño years</th></tr></thead>
+            <tbody>
+              {% for item in water %}
+              <tr><th scope="row">{{ item.label }}</th><td>{{ item.normal }} of {{ item.normal_total }} ({{ item.normal_pct }}%)</td><td>{{ item.elnino }} of {{ item.elnino_total }} ({{ item.elnino_pct }}%)</td></tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </details>
+    </div>
+    <p class="fine">Source: NASA POWER 1981 to 2025 and NOAA ONI. Enough water means the crop's water supply reached the reviewer-set share of its need. See <a href="/data">data and limits</a>.</p>
+    {% else %}
+    <p class="empty">No indicator data is available yet.</p>
+    {% endif %}
+  </div>
+</section>
+
+<section class="how" aria-labelledby="how-title">
+  <div class="wrap">
+    <p class="eyebrow">How it works</p>
+    <h2 id="how-title">Satellite data,<br>down to one text.</h2>
+    <ul class="how-cards">
+      <li class="how-card">
+        <span class="how-figure">45<small> years</small></span>
+        <h3>NASA POWER</h3>
+        <p>Daily rain, heat, sunshine and soil wetness for Batac since 1981 drive a water budget for every crop.</p>
+      </li>
+      <li class="how-card">
+        <span class="how-figure">{{ water[0].elnino_total if water else 15 }}<small> El Niño seasons</small></span>
+        <h3>NOAA El Niño record</h3>
+        <p>The Oceanic Niño Index marks which dry seasons were El Niño years, so the risk in a drought year is visible.</p>
+      </li>
+      <li class="how-card">
+        <span class="how-figure">150<small> characters</small></span>
+        <h3>One SMS</h3>
+        <p>Every reply fits one Filipino text message and works on any keypad phone, with no app or data plan.</p>
+      </li>
+    </ul>
   </div>
 </section>
 {% endblock %}
 {% block scripts %}
-<script src="{{ chart_js_url }}" integrity="{{ chart_js_sri }}" crossorigin="anonymous" defer></script>
 <script src="/static/simulator.js" defer></script>
 {% endblock %}

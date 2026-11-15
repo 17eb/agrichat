@@ -18,13 +18,10 @@ from app.templates import SMS_LIMIT, sms_length
 from engine import params
 from web import auth
 from web.auth import Session, require_session
-from web.public import STATIC, client_address, templates
+from web.public import client_address, templates
 from web.translate import english_gloss
 
 logger = logging.getLogger(__name__)
-
-LOGO_ICON = STATIC / "img" / "logo-icon.png"
-templates.env.globals["logo_icon_available"] = LOGO_ICON.exists
 
 GATEWAY_STALE_HOURS = 24
 POWER_STALE_DAYS = 3
