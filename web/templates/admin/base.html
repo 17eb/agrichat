@@ -1,0 +1,52 @@
+{% from "admin/_macros.html" import icon, csrf %}<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light dark">
+  <meta name="robots" content="noindex, nofollow">
+  <title>{% block title %}Admin{% endblock %} - AgriChat admin</title>
+  {% if logo_icon_available() %}<link rel="icon" href="/static/img/logo-icon.png">{% endif %}
+  <link rel="stylesheet" href="/static/site.css">
+  <link rel="stylesheet" href="/static/admin.css">
+</head>
+<body class="admin">
+  <a class="skip-link" href="#main">Skip to content</a>
+  {% block shell %}
+  <div class="shell">
+    <aside class="sidebar">
+      <a class="brand side-brand" href="/admin" aria-label="AgriChat admin home">
+        {% if logo_icon_available() %}<img src="/static/img/logo-icon.png" alt="" width="36" height="36">{% endif %}
+        <span class="wordmark">AgriChat</span>
+      </a>
+      <nav aria-label="Admin">
+        <ul class="side-nav">
+          {% for key, href, label in nav %}
+          <li><a class="side-link" href="{{ href }}"{% if key == active %} aria-current="page"{% endif %}>{{ icon(key) }}<span>{{ label }}</span></a></li>
+          {% endfor %}
+        </ul>
+      </nav>
+    </aside>
+    <div class="content">
+      <div class="topbar">
+        <p class="chip-status chip-{{ chip.state }}">
+          {{ icon("ok" if chip.state == "ok" else "warn" if chip.state == "stale" else "idle") }}
+          <span>{{ chip.label }}</span>
+          <span class="chip-word">{{ "Live" if chip.state == "ok" else "Stale" if chip.state == "stale" else "Idle" }}</span>
+        </p>
+        <p class="session-left">Session: {{ minutes_left // 60 }} h {{ minutes_left % 60 }} min left</p>
+        <form method="post" action="/admin/logout" class="logout">
+          {{ csrf(csrf_token) }}
+          <button class="button button-quiet" type="submit">{{ icon("logout") }}<span>Sign out</span></button>
+        </form>
+      </div>
+      <main id="main" class="admin-main" tabindex="-1">
+        <div class="loading-bar" role="status" aria-live="polite" hidden>Loading...</div>
+        {% block content %}{% endblock %}
+      </main>
+    </div>
+  </div>
+  {% endblock %}
+  <script src="/static/admin.js" defer></script>
+</body>
+</html>

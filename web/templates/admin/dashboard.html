@@ -1,0 +1,65 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import icon, state %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h1>Dashboard</h1>
+<section aria-label="Key numbers" class="stat-grid">
+  <article class="card stat"><h2>Profiles</h2><p class="stat-value">{{ profiles }}</p><p class="muted">registered farmers</p></article>
+  <article class="card stat"><h2>Messages, 24 h</h2><p class="stat-value">{{ messages_24h }}</p><p class="muted">stored in the last day</p></article>
+  <article class="card stat"><h2>Template vs model</h2>
+    {% if total_answered %}
+    <p class="stat-value">{{ template_share }}% / {{ model_share }}%</p>
+    <p class="muted">keyword path vs model path, last 24 h</p>
+    {% else %}
+    <p class="stat-value">-</p><p class="muted">no replies in the last 24 h</p>
+    {% endif %}
+  </article>
+  <article class="card stat"><h2>Gateway</h2>
+    <p class="stat-value stat-text"><span class="chip-status chip-{{ chip.state }}">{{ icon("ok" if chip.state == "ok" else "warn" if chip.state == "stale" else "idle") }}<span>{{ "Live" if chip.state == "ok" else "Stale" if chip.state == "stale" else "Idle" }}</span></span></p>
+    <p class="muted">{{ chip.label }}</p>
+  </article>
+</section>
+
+<section aria-labelledby="fresh-title">
+  <h2 id="fresh-title">Data freshness</h2>
+  <ul class="fresh-strip">
+    <li class="fresh {{ 'fresh-stale' if power.stale else '' }}">
+      <span class="fresh-label">Latest POWER row</span>
+      <strong>{{ power.date }}</strong>
+      <span class="badge">{{ icon("warn" if power.stale else "ok") }}{{ "Stale" if power.stale else "Fresh" }}{% if power.age %} - {{ power.age }}{% endif %}</span>
+    </li>
+    <li class="fresh {{ 'fresh-stale' if smap.stale else '' }}">
+      <span class="fresh-label">Latest SMAP day</span>
+      <strong>{{ smap.date }}</strong>
+      <span class="badge">{{ icon("warn" if smap.stale else "ok") }}{{ "Stale" if smap.stale else "Fresh" }}{% if smap.age %} - {{ smap.age }}{% endif %}</span>
+    </li>
+    <li class="fresh {{ 'fresh-stale' if soilwet_source != 'smap' else '' }}">
+      <span class="fresh-label">Soil wetness source</span>
+      {% if soilwet_source %}
+      <span class="chip-tag source-tag source-{{ soilwet_source }}">{{ soilwet_source }}</span>
+      <span class="badge">{{ icon("ok" if soilwet_source == "smap" else "warn") }}{{ "Satellite" if soilwet_source == "smap" else "Fallback" }}</span>
+      {% else %}
+      <strong>no data</strong>
+      {% endif %}
+    </li>
+  </ul>
+</section>
+
+<section aria-labelledby="feed-title">
+  <h2 id="feed-title">Recent activity</h2>
+  {% if feed %}
+  <ol class="timeline">
+    {% for event in feed %}
+    <li class="timeline-item {{ 'attention' if event.attention else '' }}">
+      <span class="timeline-icon">{{ icon("warn" if event.attention else "ok") }}</span>
+      <div><strong>{{ event.type | event_label }}</strong>{% if event.intent %} <span class="chip-tag">{{ event.intent }}</span>{% endif %}{% if event.template_id %} <span class="chip-tag">{{ event.template_id }}</span>{% endif %}
+      <p class="muted"><time datetime="{{ event.created_at }}">{{ event.ago }}</time></p></div>
+    </li>
+    {% endfor %}
+  </ol>
+  <p><a href="/admin/activity">All activity</a></p>
+  {% else %}
+  {{ state("empty", "No activity yet.", "Events appear here once a farmer texts the gateway or someone uses the simulator.") }}
+  {% endif %}
+</section>
+{% endblock %}

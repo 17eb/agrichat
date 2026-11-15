@@ -1,0 +1,20 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import state %}
+{% block title %}Sign in{% endblock %}
+{% block shell %}
+<main id="main" class="login-wrap">
+  <section class="card login-card" aria-labelledby="login-title">
+    <div class="login-logo">
+      {% if logo_available() %}<img src="/static/img/logo.png" alt="AgriChat" height="56">{% else %}<span class="wordmark">AgriChat</span>{% endif %}
+    </div>
+    <h1 id="login-title">Admin sign in</h1>
+    {% if error %}{{ state("error", error, "") }}{% endif %}
+    <form method="post" action="/admin/login" class="login-form">
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required autofocus maxlength="1024">
+      <button class="button" type="submit">Sign in</button>
+    </form>
+    <p class="muted note">Your session lasts 8 hours.</p>
+  </section>
+</main>
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import icon, state %}
+{% block title %}Knowledge base{% endblock %}
+{% block content %}
+<h1>Knowledge base</h1>
+<p class="muted">Restricted chunks are not loaded. {{ usable_total }} usable chunks across {{ documents | length }} documents. Read-only.</p>
+{% if documents %}
+<div class="table-wrap">
+<table class="data-table stack-table">
+  <caption class="visually-hidden">Knowledge-base documents</caption>
+  <thead><tr><th scope="col">Doc</th><th scope="col">Title</th><th scope="col">Source</th><th scope="col">Crop</th><th scope="col">Topic</th><th scope="col">Usable chunks</th></tr></thead>
+  <tbody>
+  {% for d in documents %}
+  <tr>
+    <td data-label="Doc"><code>{{ d.doc_id }}</code></td>
+    <td data-label="Title"><a href="{{ d.url }}" rel="noopener noreferrer">{{ d.title }}</a></td>
+    <td data-label="Source"><span class="chip-tag source-chip">{{ d.source_tag }}</span></td>
+    <td data-label="Crop">{{ d.crop or "-" }}</td>
+    <td data-label="Topic">{{ d.topic or "-" }}</td>
+    <td data-label="Usable chunks">{{ d.usable_chunks }}</td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<h2>Usable chunks by crop and topic</h2>
+<div class="table-wrap">
+<table class="data-table stack-table">
+  <thead><tr><th scope="col">Crop</th><th scope="col">Topic</th><th scope="col">Chunks</th></tr></thead>
+  <tbody>
+  {% for t in topics %}<tr><td data-label="Crop">{{ t.crop }}</td><td data-label="Topic">{{ t.topic }}</td><td data-label="Chunks">{{ t.count }}</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+{{ state("empty", "No documents loaded.", "The knowledge-base files list no documents.") }}
+{% endif %}
+{% endblock %}

@@ -1,0 +1,54 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import icon, state %}
+{% block title %}Messages{% endblock %}
+{% block content %}
+<h1>Messages</h1>
+<form method="get" action="/admin/messages" class="filters" data-loading-form>
+  <div><label for="intent">Intent</label>
+  <select id="intent" name="intent"><option value="">All</option>
+    {% for value in intents %}<option value="{{ value }}"{% if value == selected.intent %} selected{% endif %}>{{ value }}</option>{% endfor %}
+  </select></div>
+  <div><label for="template">Template</label>
+  <select id="template" name="template"><option value="">All</option>
+    {% for value in template_ids %}<option value="{{ value }}"{% if value == selected.template %} selected{% endif %}>{{ value }}</option>{% endfor %}
+  </select></div>
+  <div><label for="direction">Direction</label>
+  <select id="direction" name="direction"><option value="">All</option>
+    <option value="in"{% if selected.direction == "in" %} selected{% endif %}>Inbound</option>
+    <option value="out"{% if selected.direction == "out" %} selected{% endif %}>Outbound</option>
+  </select></div>
+  <button class="button" type="submit">Filter</button>
+  {% if selected.intent or selected.template or selected.direction %}<a class="button button-quiet" href="/admin/messages">Clear</a>{% endif %}
+</form>
+{% if messages %}
+<div class="table-wrap">
+<table class="data-table stack-table">
+  <caption class="visually-hidden">Messages, newest first. Only the last 3 per farmer are kept.</caption>
+  <thead><tr><th scope="col">Dir</th><th scope="col">Time (UTC)</th><th scope="col">Farmer</th><th scope="col">Intent</th><th scope="col">Template</th><th scope="col">Message</th></tr></thead>
+  <tbody>
+  {% for m in messages %}
+  <tr>
+    <td data-label="Direction"><span class="dir dir-{{ m.direction }}">{{ icon(m.direction) }}<span>{{ "Out" if m.outbound else "In" }}</span></span></td>
+    <td data-label="Time"><time datetime="{{ m.created_at }}">{{ m.created_at }}</time></td>
+    <td data-label="Farmer"><code>{{ m.phone_hash | short_hash }}</code></td>
+    <td data-label="Intent">{% if m.intent %}<span class="chip-tag">{{ m.intent }}</span>{% else %}-{% endif %}</td>
+    <td data-label="Template">{% if m.template_id %}<span class="chip-tag">{{ m.template_id }}</span>{% else %}-{% endif %}</td>
+    <td data-label="Message" class="message-cell">
+      <p class="message-text">{{ m.text }}</p>
+      {% if m.outbound %}
+      <p class="meter {{ 'meter-over' if m.over_limit else '' }}"><span class="meter-track" aria-hidden="true"><span class="meter-fill" style="width: {{ m.length_percent }}%"></span></span><span class="meter-text">{{ m.length }}/{{ sms_limit }}{% if m.over_limit %} - over limit{% endif %}</span></p>
+      {% if m.gloss %}
+      <details class="gloss"><summary>English translation</summary><p>{{ m.gloss }}</p></details>
+      {% endif %}
+      {% endif %}
+    </td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="muted">Showing the latest {{ limit }} at most. Farmer text is shown as plain text.</p>
+{% else %}
+{{ state("empty", "No messages match.", "Only the last 3 messages per farmer are kept, and STOP removes them all.") }}
+{% endif %}
+{% endblock %}

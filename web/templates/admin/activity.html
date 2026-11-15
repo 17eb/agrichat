@@ -1,0 +1,35 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import icon, state %}
+{% block title %}Activity{% endblock %}
+{% block content %}
+<h1>Activity</h1>
+<form method="get" action="/admin/activity" class="filters" data-loading-form>
+  <div><label for="type">Event type</label>
+  <select id="type" name="type">
+    <option value="">All types</option>
+    {% for key in event_types %}<option value="{{ key }}"{% if key == selected %} selected{% endif %}>{{ key | event_label }}</option>{% endfor %}
+  </select></div>
+  <button class="button" type="submit">Filter</button>
+  {% if selected %}<a class="button button-quiet" href="/admin/activity">Clear</a>{% endif %}
+</form>
+{% if events %}
+<ol class="timeline" aria-label="Events, newest first">
+  {% for event in events %}
+  <li class="timeline-item {{ 'attention' if event.attention else '' }}">
+    <span class="timeline-icon">{{ icon("warn" if event.attention else "ok") }}</span>
+    <div>
+      <strong>{{ event.type | event_label }}</strong>
+      {% if event.intent %}<span class="chip-tag">{{ event.intent }}</span>{% endif %}
+      {% if event.template_id %}<span class="chip-tag">{{ event.template_id }}</span>{% endif %}
+      {% if event.source %}<span class="chip-tag">{{ event.source }}</span>{% endif %}
+      {% if event.latency_ms is not none %}<span class="muted">{{ event.latency_ms }} ms</span>{% endif %}
+      <p class="muted"><time datetime="{{ event.created_at }}">{{ event.created_at }} UTC</time> - {{ event.ago }}</p>
+    </div>
+  </li>
+  {% endfor %}
+</ol>
+<p class="muted">Showing the latest {{ limit }} at most.</p>
+{% else %}
+{{ state("empty", "No events" ~ (" of this type" if selected else "") ~ " yet.", "Events carry no message text and no phone data.") }}
+{% endif %}
+{% endblock %}

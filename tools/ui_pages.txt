@@ -1,2 +1,3 @@
 /
 /data
+/admin/login

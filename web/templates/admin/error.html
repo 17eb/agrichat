@@ -1,0 +1,8 @@
+{% extends "admin/base.html" %}
+{% from "admin/_macros.html" import state %}
+{% block title %}Error{% endblock %}
+{% block content %}
+<h1>{{ title or "Something went wrong" }}</h1>
+{{ state("error", message or "This page could not load its data.", "" if message else "The data store did not answer. Reload the page in a moment. If it keeps failing, check the server log.") }}
+{% if back %}<p><a class="button" href="{{ back[0] }}">{{ back[1] }}</a></p>{% else %}<p><a class="button" href="">Reload</a></p>{% endif %}
+{% endblock %}
