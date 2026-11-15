@@ -23,3 +23,13 @@ HEAT_THRESHOLD_C = 35.0
 HARVEST_RAIN_THRESHOLD_MM = 50.0
 
 # PLACEHOLDER: pending reviewer; flowering is the scaled mid stage in the pipeline.
+
+BORDERLINE_SCORE_GAP = 10.0
+BORDERLINE_WATER_RANGE = (0.4, 0.6)
+ROTATION_OTHER_BENEFIT = 0.5
+# PLACEHOLDER: pending reviewer; a majority of historical seasons is water OK.
+WATER_OK_RELIABILITY = 0.5
+# PLACEHOLDER: pending reviewer; report timing risk above one season in five.
+TIMING_REASON_FREQUENCY = 0.2
+# PLACEHOLDER: pending reviewer; no income preference until flags are supplied.
+DEFAULT_INCOME_FLAG = 0.0
