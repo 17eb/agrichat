@@ -1,0 +1,16 @@
+Source: https://www.batac.gov.ph/barangays/
+Accessed: 2026-11-15
+City Government of Batac, BARANGAYS directory (selected names):
+BAAY
+BALIGAT
+BUNGON
+QUILING NORTE
+QUILING SUR
+TABUG
+PAYAO
+COLO
+
+Coordinates: docs/Technical_spec.md pilot BATAC point and
+data/provenance.csv POWER daily rows, latitude 18.06, longitude 120.56.
+Aliases use a pipe separator in barangays.csv and all map to BATAC.
+Soil class is intentionally empty as required by the pilot spec.
