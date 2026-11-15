@@ -24,7 +24,7 @@
   --button-text: #ffffff;
   --button-hover: #25552e;
   --accent-fill: var(--carrot);
-  --focus: #1a5fb4;
+  --focus: var(--deep-green);
   --bubble-out-bg: #e6f2da;
   --bubble-out-text: var(--ink);
   --bubble-gloss-bg: #fff1e6;
@@ -67,7 +67,7 @@
     --button-bg: var(--bubble-green);
     --button-text: var(--ink);
     --button-hover: #b3dc89;
-    --focus: #8ab8f5;
+    --focus: var(--bubble-green);
     --bubble-out-bg: #23362a;
     --bubble-out-text: #edf3ea;
     --bubble-gloss-bg: #3a2a1d;

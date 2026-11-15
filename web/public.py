@@ -16,7 +16,6 @@ from web.translate import english_gloss
 
 WEB = Path(__file__).resolve().parent
 STATIC = WEB / "static"
-LOGO = STATIC / "img" / "logo.png"
 REPO_URL = "https://github.com/17eb/agrichat"
 PILOT_BARANGAY = "BATAC"
 PILOT_SOW_WINDOW = "11-01/11-30"
@@ -28,7 +27,6 @@ SMAP_VS_POWER = DATA / "smap" / "smap_vs_power.csv"
 
 router = APIRouter()
 templates = Jinja2Templates(directory=WEB / "templates")
-templates.env.globals["logo_available"] = LOGO.exists
 templates.env.globals["repo_url"] = REPO_URL
 
 

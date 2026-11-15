@@ -6,7 +6,9 @@
   <meta name="color-scheme" content="light dark">
   <meta name="robots" content="noindex, nofollow">
   <title>{% block title %}Admin{% endblock %} - AgriChat admin</title>
-  {% if logo_icon_available() %}<link rel="icon" href="/static/img/logo-icon.png">{% endif %}
+  <link rel="icon" href="/static/img/favicon.ico" sizes="48x48">
+  <link rel="icon" href="/static/img/favicon-32.png" type="image/png" sizes="32x32">
+  <link rel="apple-touch-icon" href="/static/img/apple-touch-icon.png">
   <link rel="stylesheet" href="/static/site.css">
   <link rel="stylesheet" href="/static/admin.css">
 </head>
@@ -16,7 +18,7 @@
   <div class="shell">
     <aside class="sidebar">
       <a class="brand side-brand" href="/admin" aria-label="AgriChat admin home">
-        {% if logo_icon_available() %}<img src="/static/img/logo-icon.png" alt="" width="36" height="36">{% endif %}
+        <img src="/static/img/logo-icon.png" alt="" width="36" height="36">
         <span class="wordmark">AgriChat</span>
       </a>
       <nav aria-label="Admin">

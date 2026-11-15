@@ -67,11 +67,25 @@ def test_home_chart_is_server_rendered_from_indicators(client: TestClient) -> No
     assert f"{best['label'].lower()} holds up" in html
 
 
-def test_wordmark_shown_until_logo_exists(client: TestClient) -> None:
-    assert not (STATIC / "img" / "logo.png").exists()
+BRAND_ASSETS = (
+    "logo.png",
+    "logo-icon.png",
+    "favicon.ico",
+    "favicon-32.png",
+    "apple-touch-icon.png",
+)
+
+
+def test_brand_assets_served_and_referenced(client: TestClient) -> None:
+    for name in BRAND_ASSETS:
+        response = client.get(f"/static/img/{name}")
+        assert response.status_code == 200, name
+        assert response.content
     html = client.get("/").text
     assert 'class="wordmark"' in html
-    assert "logo.png" not in html
+    assert html.count('src="/static/img/logo-icon.png"') == 2
+    for name in ("favicon.ico", "favicon-32.png", "apple-touch-icon.png"):
+        assert f'href="/static/img/{name}"' in html
 
 
 def test_data_page_renders_spec_content(client: TestClient) -> None:
@@ -113,7 +127,8 @@ def test_static_assets_served(client: TestClient) -> None:
 
 
 def test_pages_have_no_long_dash() -> None:
-    for path in [*STATIC.glob("*"), *(STATIC.parent / "templates").rglob("*.html")]:
+    sources = [*STATIC.glob("*.css"), *STATIC.glob("*.js")]
+    for path in [*sources, *(STATIC.parent / "templates").rglob("*.html")]:
         assert chr(0x2014) not in path.read_text()
 
 
