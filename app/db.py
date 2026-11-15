@@ -1,5 +1,6 @@
 """SQLite schema and small persistence helpers."""
 
+import csv
 import hashlib
 import hmac
 import sqlite3
@@ -9,6 +10,9 @@ from pathlib import Path
 from typing import Literal
 
 from app.config import Settings
+from engine import params
+
+DATA = Path(__file__).resolve().parent.parent / "data"
 
 EventSource = Literal["keyword", "model", "fallback"]
 
@@ -30,6 +34,7 @@ CREATE TABLE IF NOT EXISTS messages (
     text TEXT NOT NULL,
     intent TEXT,
     template_id TEXT,
+    context TEXT,
     created_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE INDEX IF NOT EXISTS messages_phone ON messages(phone_hash, id);
@@ -45,6 +50,7 @@ BEGIN
 END;
 CREATE TABLE IF NOT EXISTS processed_events (
     event_id TEXT PRIMARY KEY NOT NULL,
+    phone_hash TEXT,
     received_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 CREATE TABLE IF NOT EXISTS indicators (
@@ -113,6 +119,21 @@ def init_db(db_path: str | Path) -> None:
     with connect_db(db_path) as connection:
         connection.execute("PRAGMA journal_mode = WAL")
         connection.executescript(SCHEMA)
+        for table, column, query in (
+            ("messages", "context", "ALTER TABLE messages ADD COLUMN context TEXT"),
+            (
+                "processed_events",
+                "phone_hash",
+                "ALTER TABLE processed_events ADD COLUMN phone_hash TEXT",
+            ),
+        ):
+            columns = connection.execute("SELECT name FROM pragma_table_info(?)", (table,))
+            if column not in {row[0] for row in columns}:
+                connection.execute(query)
+        connection.execute(
+            "CREATE INDEX IF NOT EXISTS processed_phone "
+            "ON processed_events(phone_hash, received_at)"
+        )
 
 
 @contextmanager
@@ -126,6 +147,90 @@ def connect_db(db_path: str | Path) -> Iterator[sqlite3.Connection]:
             yield connection
     finally:
         connection.close()
+
+
+def seed_sms_data(db_path: str) -> None:
+    """Import named catalog fields, limited to the configured engine crops."""
+    with connect_db(db_path) as connection:
+        for path, columns, query in (
+            (
+                DATA / "barangays/barangays.csv",
+                ("barangay_code", "name", "aliases", "lat", "lon", "soil_class"),
+                """INSERT INTO barangays
+                (barangay_code, name, aliases, lat, lon, soil_class)
+                VALUES (?, ?, ?, ?, ?, ?) ON CONFLICT(barangay_code) DO NOTHING""",
+            ),
+            (
+                DATA / "crops/crops_engine.csv",
+                (
+                    "crop",
+                    "kc_ini",
+                    "kc_mid",
+                    "kc_end",
+                    "days",
+                    "is_legume",
+                    "income_flag",
+                    "source",
+                ),
+                """INSERT INTO crops
+                (crop, kc_ini, kc_mid, kc_end, days, is_legume, income_flag, source)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?) ON CONFLICT(crop) DO NOTHING""",
+            ),
+            (
+                DATA / "indicators.csv",
+                (
+                    "barangay_code",
+                    "crop",
+                    "sow_window",
+                    "n_years",
+                    "n_adequate",
+                    "n_elnino",
+                    "n_adequate_elnino",
+                    "median_ratio",
+                    "heat_freq",
+                    "harvest_rain_freq",
+                    "rain30_pct",
+                    "soilwet_pct",
+                    "soilwet_source",
+                    "soilwet_date",
+                    "updated_at",
+                ),
+                """INSERT INTO indicators
+                (barangay_code, crop, sow_window, n_years, n_adequate, n_elnino,
+                 n_adequate_elnino, median_ratio, heat_freq, harvest_rain_freq,
+                 rain30_pct, soilwet_pct, soilwet_source, soilwet_date, updated_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(barangay_code, crop, sow_window) DO NOTHING""",
+            ),
+        ):
+            with path.open(newline="") as handle:
+                rows = csv.DictReader(handle)
+                nullable = {
+                    "income_flag",
+                    "soilwet_pct",
+                    "rain30_pct",
+                    "soilwet_date",
+                    "soilwet_source",
+                }
+                connection.executemany(
+                    query,
+                    [
+                        tuple(
+                            None if key in nullable and row[key] == "" else row[key]
+                            for key in columns
+                        )
+                        for row in rows
+                        if "crop" not in row or row["crop"] in params.KC_END
+                    ],
+                )
+
+
+def expire_event_phones(connection: sqlite3.Connection) -> None:
+    """Retain deduplication IDs without phone links beyond the rate window."""
+    connection.execute(
+        """UPDATE processed_events SET phone_hash = NULL
+        WHERE phone_hash IS NOT NULL AND received_at <= datetime('now', '-1 hour')"""
+    )
 
 
 def hash_phone(number: str, settings: Settings) -> str:

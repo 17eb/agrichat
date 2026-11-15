@@ -156,10 +156,10 @@ def test_messages_retain_three_and_delete_with_farmer(tmp_path: Path) -> None:
             )
 
 
-def test_healthz_without_integration_secrets(tmp_path: Path) -> None:
+def test_health_without_integration_secrets(tmp_path: Path) -> None:
     settings = Settings(db_path=str(tmp_path / "app.sqlite3"))
     with TestClient(create_app(settings)) as client:
-        response = client.get("/healthz")
+        response = client.get("/health")
         assert response.status_code == 200
         assert response.json() == {"ok": True}
     assert Path(settings.db_path).is_file()
